@@ -3,156 +3,431 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rechner</title>
+<title>CH / JP Rechner</title>
+
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  body {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #1a1a2e;
-    font-family: 'Courier New', monospace;
-  }
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a2e;
+  font-family: 'Courier New', monospace;
+}
 
-  .card {
-    background: #16213e;
-    border: 1px solid #0f3460;
-    border-radius: 4px;
-    padding: 48px 40px;
-    width: 340px;
-    box-shadow: 0 0 40px rgba(15, 52, 96, 0.6);
-  }
+.card {
+  background: #16213e;
+  border: 1px solid #0f3460;
+  border-radius: 4px;
+  padding: 40px 36px;
+  width: 320px;
+  box-shadow: 0 0 40px rgba(15,52,96,0.6);
+}
 
-  .label {
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #4a90d9;
-    margin-bottom: 24px;
-  }
+.title {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #4a90d9;
+  margin-bottom: 24px;
+}
 
-  .formula {
-    font-size: 13px;
-    color: #6b7db3;
-    margin-bottom: 32px;
-    padding: 12px 14px;
-    background: #0d1b2a;
-    border-left: 2px solid #0f3460;
-    line-height: 1.6;
-  }
+.formulas {
+  margin-bottom: 28px;
+}
 
-  .formula span {
-    color: #4a90d9;
-    font-weight: bold;
-  }
+.formula-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
 
-  input[type="number"] {
-    width: 100%;
-    padding: 14px 16px;
-    font-size: 22px;
-    font-family: 'Courier New', monospace;
-    background: #0d1b2a;
-    border: 1px solid #0f3460;
-    border-radius: 2px;
-    color: #e0e8ff;
-    outline: none;
-    transition: border-color 0.2s;
-    -moz-appearance: textfield;
-  }
+.formula-row:last-of-type {
+  margin-bottom: 0;
+}
 
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-  }
+.market {
+  width: 24px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #4a90d9;
+}
 
-  input[type="number"]:focus {
-    border-color: #4a90d9;
-  }
+.market.jp {
+  color: #7ec8e3;
+}
 
-  .divider {
-    height: 1px;
-    background: #0f3460;
-    margin: 28px 0;
-  }
+.formula-text {
+  font-size: 12px;
+  color: #6b7db3;
+}
 
-  .result-label {
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #4a90d9;
-    margin-bottom: 12px;
-  }
+input {
+  font-family: 'Courier New', monospace;
+  background: #0d1b2a;
+  border: 1px solid #0f3460;
+  border-radius: 2px;
+  color: #e0e8ff;
+  outline: none;
+  -moz-appearance: textfield;
+}
 
-  .result-value {
-    font-size: 48px;
-    color: #e0e8ff;
-    letter-spacing: -1px;
-    min-height: 58px;
-    transition: color 0.2s;
-  }
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
 
-  .result-value.active {
-    color: #7ec8e3;
-  }
+input:focus {
+  border-color: #4a90d9;
+}
 
-  .hint {
-    margin-top: 10px;
-    font-size: 11px;
-    color: #3a4a6b;
-    letter-spacing: 1px;
-  }
+.divisor {
+  width: 80px;
+  padding: 6px 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.hint {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #3a4a6b;
+}
+
+.main-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 22px;
+}
+
+.divider {
+  height: 1px;
+  background: #0f3460;
+  margin: 24px 0;
+}
+
+.result-section {
+  margin-bottom: 24px;
+}
+
+.result-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #4a90d9;
+  margin-bottom: 8px;
+}
+
+.result-label.jp {
+  color: #7ec8e3;
+}
+
+.result-value {
+  font-size: 48px;
+  color: #e0e8ff;
+  letter-spacing: -1px;
+}
+
+.result-value.active {
+  color: #7ec8e3;
+}
+
+.jp-line {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.jp200 {
+  font-size: 20px;
+  color: #4a90d9;
+}
+
+.raw {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #3a4a6b;
+}
+
+.small-divider {
+  height: 1px;
+  background: #0f3460;
+  margin-bottom: 24px;
+}
 </style>
 </head>
+
 <body>
+
 <div class="card">
-  <div class="label">Kalkulation</div>
-  <div class="formula">
-    Ergebnis = <span>0.65 × A</span> ÷ 140<br>
-    → gerundet auf 0.5
+
+  <div class="title">Kalkulation</div>
+
+  <div class="formulas">
+
+    <div class="formula-row">
+      <span class="market">CH</span>
+      <span class="formula-text">= 0.5 × A ÷</span>
+      <input
+        class="divisor"
+        id="chDiv"
+        type="number"
+        value="145"
+      >
+    </div>
+
+    <div class="formula-row">
+      <span class="market jp">JP</span>
+      <span class="formula-text">= 0.5 × A ÷</span>
+      <input
+        class="divisor"
+        id="jpDiv"
+        type="number"
+        value="665"
+      >
+    </div>
+
+    <div class="hint">
+      → gerundet auf 0.5
+    </div>
+
   </div>
 
   <input
-    type="number"
+    class="main-input"
     id="inputA"
+    type="number"
     placeholder="A eingeben"
     step="any"
-    oninput="calculate()"
-  />
+  >
 
   <div class="divider"></div>
 
-  <div class="result-label">Ergebnis</div>
-  <div class="result-value" id="result">—</div>
-  <div class="hint" id="hint"></div>
+  <div class="result-section">
+
+    <div class="result-label">CH</div>
+
+    <div
+      class="result-value"
+      id="chResult">
+      —
+    </div>
+
+    <div
+      class="raw"
+      id="chRaw">
+    </div>
+
+  </div>
+
+  <div class="small-divider"></div>
+
+  <div>
+
+    <div class="result-label jp">JP</div>
+
+    <div class="jp-line">
+
+      <div
+        class="result-value"
+        id="jpResult">
+        —
+      </div>
+
+      <div
+        class="jp200"
+        id="jp200">
+      </div>
+
+    </div>
+
+    <div
+      class="raw"
+      id="jpRaw">
+    </div>
+
+  </div>
+
 </div>
 
 <script>
-  function calculate() {
-    const a = parseFloat(document.getElementById('inputA').value);
-    const resultEl = document.getElementById('result');
-    const hintEl = document.getElementById('hint');
 
-    if (isNaN(a)) {
-      resultEl.textContent = '—';
-      resultEl.classList.remove('active');
-      hintEl.textContent = '';
-      return;
-    }
+const inputA = document.getElementById("inputA");
 
-    const raw = (0.65 * a) / 140;
-    // Round to nearest 0.5 (half rounds up)
-    const rounded = Math.round(raw / 0.5) * 0.5;
+const chDivInput = document.getElementById("chDiv");
+const jpDivInput = document.getElementById("jpDiv");
 
-    resultEl.textContent = rounded % 1 === 0
-      ? rounded.toFixed(1)
-      : rounded.toString();
-    resultEl.classList.add('active');
-    hintEl.textContent = 'Rohwert: ' + raw.toFixed(4);
+const chResult = document.getElementById("chResult");
+const jpResult = document.getElementById("jpResult");
+
+const chRawEl = document.getElementById("chRaw");
+const jpRawEl = document.getElementById("jpRaw");
+
+const jp200El = document.getElementById("jp200");
+
+
+function round05(value) {
+  return Math.round(value / 0.5) * 0.5;
+}
+
+
+function formatResult(value) {
+
+  if (value === null) {
+    return "—";
   }
 
-  document.getElementById('inputA').focus();
+  return value % 1 === 0
+    ? value.toFixed(1)
+    : value.toString();
+}
+
+
+function loadDivisors() {
+
+  const savedCH = parseFloat(
+    localStorage.getItem("chDiv")
+  );
+
+  const savedJP = parseFloat(
+    localStorage.getItem("jpDiv")
+  );
+
+  if (!isNaN(savedCH) && savedCH > 0) {
+    chDivInput.value = savedCH;
+  }
+
+  if (!isNaN(savedJP) && savedJP > 0) {
+    jpDivInput.value = savedJP;
+  }
+}
+
+
+function saveDivisors() {
+
+  const ch = parseFloat(chDivInput.value);
+  const jp = parseFloat(jpDivInput.value);
+
+  if (!isNaN(ch) && ch > 0) {
+    localStorage.setItem("chDiv", ch);
+  }
+
+  if (!isNaN(jp) && jp > 0) {
+    localStorage.setItem("jpDiv", jp);
+  }
+
+  calculate();
+}
+
+
+function calculate() {
+
+  const a = parseFloat(inputA.value);
+
+  const chDiv = parseFloat(chDivInput.value);
+  const jpDiv = parseFloat(jpDivInput.value);
+
+
+  if (isNaN(a)) {
+
+    chResult.textContent = "—";
+    jpResult.textContent = "—";
+
+    chResult.classList.remove("active");
+    jpResult.classList.remove("active");
+
+    chRawEl.textContent = "";
+    jpRawEl.textContent = "";
+
+    jp200El.textContent = "";
+
+    return;
+  }
+
+
+  if (isNaN(chDiv) || chDiv <= 0 ||
+      isNaN(jpDiv) || jpDiv <= 0) {
+    return;
+  }
+
+
+  const chRaw =
+    (0.5 * a) / chDiv;
+
+  const jpRaw =
+    (0.5 * a) / jpDiv;
+
+
+  const ch =
+    round05(chRaw);
+
+  const jp =
+    round05(jpRaw);
+
+
+  const jp200 =
+    jp * 200;
+
+
+  chResult.textContent =
+    formatResult(ch);
+
+  jpResult.textContent =
+    formatResult(jp);
+
+
+  jp200El.textContent =
+    "(" +
+    (
+      jp200 % 1 === 0
+        ? jp200.toFixed(0)
+        : jp200
+    )
+    + ")";
+
+
+  chRawEl.textContent =
+    "Rohwert: " +
+    chRaw.toFixed(4);
+
+  jpRawEl.textContent =
+    "Rohwert: " +
+    jpRaw.toFixed(4);
+
+
+  chResult.classList.add("active");
+  jpResult.classList.add("active");
+}
+
+
+inputA.addEventListener(
+  "input",
+  calculate
+);
+
+
+chDivInput.addEventListener(
+  "change",
+  saveDivisors
+);
+
+
+jpDivInput.addEventListener(
+  "change",
+  saveDivisors
+);
+
+
+loadDivisors();
+
 </script>
+
 </body>
 </html>
