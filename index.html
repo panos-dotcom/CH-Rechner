@@ -1,449 +1,524 @@
-import { useState } from "react";
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-const round05 = (val) => Math.round(val / 0.5) * 0.5;
+<title>CH / JP Rechner</title>
 
-const fmt = (r) => {
-  if (r === null) return "—";
-  return r % 1 === 0 ? r.toFixed(1) : r.toString();
-};
-
-const load = (key, def) => {
-  try {
-    const v = parseFloat(localStorage.getItem(key));
-    return isNaN(v) ? def : v;
-  } catch {
-    return def;
-  }
-};
-
-const save = (key, val) => {
-  try {
-    localStorage.setItem(key, val);
-  } catch {}
-};
-
-const inputStyle = (extra = {}) => ({
-  fontFamily: "'Courier New', monospace",
-  background: "#0d1b2a",
-  border: "1px solid #0f3460",
-  borderRadius: 2,
-  color: "#e0e8ff",
-  outline: "none",
-  boxSizing: "border-box",
-  ...extra,
-});
-
-function ParamInput({
-  value,
-  inputVal,
-  setInputVal,
-  onSave,
-  width = 70
-}) {
-  return (
-    <input
-      type="number"
-      value={inputVal}
-      onChange={(e) => setInputVal(e.target.value)}
-      onBlur={(e) => onSave(e.target.value)}
-      onKeyDown={(e) =>
-        e.key === "Enter" && onSave(inputVal)
-      }
-      style={inputStyle({
-        width,
-        padding: "6px 10px",
-        fontSize: 14,
-        textAlign: "center"
-      })}
-    />
-  );
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-export default function Rechner() {
-  const [input, setInput] = useState("");
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a2e;
+  font-family: "Courier New", monospace;
+}
 
-  const [chMul, setChMul] = useState(() =>
-    load("chMul", 0.5)
-  );
+.card {
+  background: #16213e;
+  border: 1px solid #0f3460;
+  border-radius: 4px;
+  padding: 40px 36px;
+  width: 340px;
+  max-width: calc(100vw - 30px);
+  box-shadow: 0 0 40px rgba(15,52,96,0.6);
+}
 
-  const [chDiv, setChDiv] = useState(() =>
-    load("chDiv", 145)
-  );
+.title {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #4a90d9;
+  margin-bottom: 24px;
+}
 
-  const [jpMul, setJpMul] = useState(() =>
-    load("jpMul", 0.5)
-  );
+.formulas {
+  margin-bottom: 28px;
+}
 
-  const [jpDiv, setJpDiv] = useState(() =>
-    load("jpDiv", 665)
-  );
+.formula-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
 
-  const [chMulI, setChMulI] = useState(
-    String(load("chMul", 0.5))
-  );
+.market {
+  width: 24px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #4a90d9;
+}
 
-  const [chDivI, setChDivI] = useState(
-    String(load("chDiv", 145))
-  );
+.market.jp {
+  color: #7ec8e3;
+}
 
-  const [jpMulI, setJpMulI] = useState(
-    String(load("jpMul", 0.5))
-  );
+.formula-text {
+  font-size: 12px;
+  color: #6b7db3;
+}
 
-  const [jpDivI, setJpDivI] = useState(
-    String(load("jpDiv", 665))
-  );
+.param {
+  font-family: "Courier New", monospace;
+  background: #0d1b2a;
+  border: 1px solid #0f3460;
+  border-radius: 2px;
+  color: #e0e8ff;
+  outline: none;
+  padding: 6px 8px;
+  font-size: 14px;
+  text-align: center;
+}
 
-  const mkSave = (setter, key) => (val) => {
-    const n = parseFloat(val);
+.multiplier {
+  width: 65px;
+}
 
-    if (!isNaN(n) && n > 0) {
-      setter(n);
-      save(key, n);
-    }
-  };
+.divisor {
+  width: 75px;
+}
 
-  const a = parseFloat(input);
+.param:focus,
+.main-input:focus {
+  border-color: #4a90d9;
+}
 
-  const valid =
-    !isNaN(a) && input !== "";
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 
-  const chRaw = valid
-    ? (chMul * a) / chDiv
-    : null;
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
-  const jpRaw = valid
-    ? (jpMul * a) / jpDiv
-    : null;
+.hint {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #3a4a6b;
+}
 
-  const ch =
-    chRaw !== null
-      ? round05(chRaw)
-      : null;
+.main-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 22px;
+  font-family: "Courier New", monospace;
+  background: #0d1b2a;
+  border: 1px solid #0f3460;
+  border-radius: 2px;
+  color: #e0e8ff;
+  outline: none;
+}
 
-  const jp =
-    jpRaw !== null
-      ? round05(jpRaw)
-      : null;
+.divider {
+  height: 1px;
+  background: #0f3460;
+  margin: 24px 0;
+}
 
-  const jp200 =
-    jp !== null
-      ? jp * 200
-      : null;
+.small-divider {
+  height: 1px;
+  background: #0f3460;
+  margin-bottom: 24px;
+}
 
-  const labelStyle = {
-    fontSize: 11,
-    letterSpacing: 3,
-    textTransform: "uppercase",
-    color: "#4a90d9",
-    marginBottom: 8
-  };
+.result-section {
+  margin-bottom: 24px;
+}
 
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#1a1a2e",
-        fontFamily: "'Courier New', monospace"
-      }}
-    >
-      <div
-        style={{
-          background: "#16213e",
-          border: "1px solid #0f3460",
-          borderRadius: 4,
-          padding: "40px 36px",
-          width: 340,
-          boxShadow:
-            "0 0 40px rgba(15,52,96,0.6)"
-        }}
+.result-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #4a90d9;
+  margin-bottom: 8px;
+}
+
+.result-label.jp {
+  color: #7ec8e3;
+}
+
+.result-value {
+  font-size: 48px;
+  color: #e0e8ff;
+  letter-spacing: -1px;
+}
+
+.result-value.active {
+  color: #7ec8e3;
+}
+
+.jp-line {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.jp200 {
+  font-size: 20px;
+  color: #4a90d9;
+}
+
+.raw {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #3a4a6b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+  <div class="title">Kalkulation</div>
+
+  <div class="formulas">
+
+    <div class="formula-row">
+      <span class="market">CH</span>
+      <span class="formula-text">=</span>
+
+      <input
+        id="chMul"
+        class="param multiplier"
+        type="number"
+        value="0.5"
+        step="any"
       >
 
-        <div
-          style={{
-            fontSize: 11,
-            letterSpacing: 3,
-            textTransform: "uppercase",
-            color: "#4a90d9",
-            marginBottom: 24
-          }}
-        >
-          Kalkulation
-        </div>
+      <span class="formula-text">× A ÷</span>
 
-        <div style={{ marginBottom: 28 }}>
-
-          {/* CH */}
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 12,
-              flexWrap: "wrap"
-            }}
-          >
-            <span
-              style={{
-                fontSize: 12,
-                color: "#4a90d9",
-                fontWeight: "bold",
-                width: 24
-              }}
-            >
-              CH
-            </span>
-
-            <span
-              style={{
-                fontSize: 12,
-                color: "#6b7db3"
-              }}
-            >
-              =
-            </span>
-
-            <ParamInput
-              inputVal={chMulI}
-              setInputVal={setChMulI}
-              onSave={mkSave(
-                setChMul,
-                "chMul"
-              )}
-              width={65}
-            />
-
-            <span
-              style={{
-                fontSize: 12,
-                color: "#6b7db3"
-              }}
-            >
-              × A ÷
-            </span>
-
-            <ParamInput
-              inputVal={chDivI}
-              setInputVal={setChDivI}
-              onSave={mkSave(
-                setChDiv,
-                "chDiv"
-              )}
-              width={75}
-            />
-          </div>
-
-          {/* JP */}
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              flexWrap: "wrap"
-            }}
-          >
-            <span
-              style={{
-                fontSize: 12,
-                color: "#7ec8e3",
-                fontWeight: "bold",
-                width: 24
-              }}
-            >
-              JP
-            </span>
-
-            <span
-              style={{
-                fontSize: 12,
-                color: "#6b7db3"
-              }}
-            >
-              =
-            </span>
-
-            <ParamInput
-              inputVal={jpMulI}
-              setInputVal={setJpMulI}
-              onSave={mkSave(
-                setJpMul,
-                "jpMul"
-              )}
-              width={65}
-            />
-
-            <span
-              style={{
-                fontSize: 12,
-                color: "#6b7db3"
-              }}
-            >
-              × A ÷
-            </span>
-
-            <ParamInput
-              inputVal={jpDivI}
-              setInputVal={setJpDivI}
-              onSave={mkSave(
-                setJpDiv,
-                "jpDiv"
-              )}
-              width={75}
-            />
-          </div>
-
-          <div
-            style={{
-              marginTop: 10,
-              fontSize: 11,
-              color: "#3a4a6b"
-            }}
-          >
-            → gerundet auf 0.5
-          </div>
-
-        </div>
-
-        {/* A input */}
-
-        <input
-          type="number"
-          value={input}
-          onChange={(e) =>
-            setInput(e.target.value)
-          }
-          placeholder="A eingeben"
-          style={inputStyle({
-            width: "100%",
-            padding: "14px 16px",
-            fontSize: 22
-          })}
-        />
-
-        <div
-          style={{
-            height: 1,
-            background: "#0f3460",
-            margin: "24px 0"
-          }}
-        />
-
-        {/* CH Result */}
-
-        <div
-          style={{
-            marginBottom: 24
-          }}
-        >
-          <div style={labelStyle}>
-            CH
-          </div>
-
-          <div
-            style={{
-              fontSize: 48,
-              color:
-                ch !== null
-                  ? "#7ec8e3"
-                  : "#e0e8ff",
-              letterSpacing: -1
-            }}
-          >
-            {fmt(ch)}
-          </div>
-
-          {chRaw !== null && (
-            <div
-              style={{
-                marginTop: 4,
-                fontSize: 11,
-                color: "#3a4a6b"
-              }}
-            >
-              Rohwert: {chRaw.toFixed(4)}
-            </div>
-          )}
-        </div>
-
-        <div
-          style={{
-            height: 1,
-            background: "#0f3460",
-            marginBottom: 24
-          }}
-        />
-
-        {/* JP Result */}
-
-        <div>
-
-          <div
-            style={{
-              ...labelStyle,
-              color: "#7ec8e3"
-            }}
-          >
-            JP
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 12
-            }}
-          >
-
-            <div
-              style={{
-                fontSize: 48,
-                color:
-                  jp !== null
-                    ? "#7ec8e3"
-                    : "#e0e8ff",
-                letterSpacing: -1
-              }}
-            >
-              {fmt(jp)}
-            </div>
-
-            {jp200 !== null && (
-              <div
-                style={{
-                  fontSize: 20,
-                  color: "#4a90d9"
-                }}
-              >
-                (
-                {jp200 % 1 === 0
-                  ? jp200.toFixed(0)
-                  : jp200}
-                )
-              </div>
-            )}
-
-          </div>
-
-          {jpRaw !== null && (
-            <div
-              style={{
-                marginTop: 4,
-                fontSize: 11,
-                color: "#3a4a6b"
-              }}
-            >
-              Rohwert: {jpRaw.toFixed(4)}
-            </div>
-          )}
-
-        </div>
-
-      </div>
+      <input
+        id="chDiv"
+        class="param divisor"
+        type="number"
+        value="145"
+        step="any"
+      >
     </div>
-  );
+
+    <div class="formula-row">
+      <span class="market jp">JP</span>
+      <span class="formula-text">=</span>
+
+      <input
+        id="jpMul"
+        class="param multiplier"
+        type="number"
+        value="0.5"
+        step="any"
+      >
+
+      <span class="formula-text">× A ÷</span>
+
+      <input
+        id="jpDiv"
+        class="param divisor"
+        type="number"
+        value="665"
+        step="any"
+      >
+    </div>
+
+    <div class="hint">
+      → gerundet auf 0.5
+    </div>
+
+  </div>
+
+  <input
+    id="inputA"
+    class="main-input"
+    type="number"
+    placeholder="A eingeben"
+    step="any"
+  >
+
+  <div class="divider"></div>
+
+  <div class="result-section">
+
+    <div class="result-label">
+      CH
+    </div>
+
+    <div
+      class="result-value"
+      id="chResult"
+    >
+      —
+    </div>
+
+    <div
+      class="raw"
+      id="chRaw"
+    ></div>
+
+  </div>
+
+  <div class="small-divider"></div>
+
+  <div>
+
+    <div class="result-label jp">
+      JP
+    </div>
+
+    <div class="jp-line">
+
+      <div
+        class="result-value"
+        id="jpResult"
+      >
+        —
+      </div>
+
+      <div
+        class="jp200"
+        id="jp200"
+      ></div>
+
+    </div>
+
+    <div
+      class="raw"
+      id="jpRaw"
+    ></div>
+
+  </div>
+
+</div>
+
+<script>
+
+const inputA =
+  document.getElementById("inputA");
+
+const chMulInput =
+  document.getElementById("chMul");
+
+const chDivInput =
+  document.getElementById("chDiv");
+
+const jpMulInput =
+  document.getElementById("jpMul");
+
+const jpDivInput =
+  document.getElementById("jpDiv");
+
+const chResult =
+  document.getElementById("chResult");
+
+const jpResult =
+  document.getElementById("jpResult");
+
+const chRawEl =
+  document.getElementById("chRaw");
+
+const jpRawEl =
+  document.getElementById("jpRaw");
+
+const jp200El =
+  document.getElementById("jp200");
+
+
+function round05(value) {
+  return Math.round(value / 0.5) * 0.5;
 }
+
+
+function formatResult(value) {
+
+  if (value === null) {
+    return "—";
+  }
+
+  return value % 1 === 0
+    ? value.toFixed(1)
+    : value.toString();
+}
+
+
+function loadSettings() {
+
+  const settings = [
+    ["chMul", chMulInput],
+    ["chDiv", chDivInput],
+    ["jpMul", jpMulInput],
+    ["jpDiv", jpDivInput]
+  ];
+
+  settings.forEach(([key, input]) => {
+
+    const saved =
+      parseFloat(localStorage.getItem(key));
+
+    if (!isNaN(saved) && saved > 0) {
+      input.value = saved;
+    }
+
+  });
+}
+
+
+function saveSettings() {
+
+  const settings = [
+    ["chMul", chMulInput],
+    ["chDiv", chDivInput],
+    ["jpMul", jpMulInput],
+    ["jpDiv", jpDivInput]
+  ];
+
+  settings.forEach(([key, input]) => {
+
+    const value =
+      parseFloat(input.value);
+
+    if (!isNaN(value) && value > 0) {
+      localStorage.setItem(key, value);
+    }
+
+  });
+
+  calculate();
+}
+
+
+function calculate() {
+
+  const a =
+    parseFloat(inputA.value);
+
+  const chMul =
+    parseFloat(chMulInput.value);
+
+  const chDiv =
+    parseFloat(chDivInput.value);
+
+  const jpMul =
+    parseFloat(jpMulInput.value);
+
+  const jpDiv =
+    parseFloat(jpDivInput.value);
+
+
+  if (isNaN(a)) {
+
+    chResult.textContent = "—";
+    jpResult.textContent = "—";
+
+    chResult.classList.remove("active");
+    jpResult.classList.remove("active");
+
+    chRawEl.textContent = "";
+    jpRawEl.textContent = "";
+    jp200El.textContent = "";
+
+    return;
+  }
+
+
+  if (
+    isNaN(chMul) ||
+    isNaN(chDiv) ||
+    isNaN(jpMul) ||
+    isNaN(jpDiv) ||
+    chDiv <= 0 ||
+    jpDiv <= 0
+  ) {
+    return;
+  }
+
+
+  const chRaw =
+    (chMul * a) / chDiv;
+
+  const jpRaw =
+    (jpMul * a) / jpDiv;
+
+
+  const ch =
+    round05(chRaw);
+
+  const jp =
+    round05(jpRaw);
+
+
+  const jp200 =
+    jp * 200;
+
+
+  chResult.textContent =
+    formatResult(ch);
+
+  jpResult.textContent =
+    formatResult(jp);
+
+
+  jp200El.textContent =
+    "(" +
+    (
+      jp200 % 1 === 0
+        ? jp200.toFixed(0)
+        : jp200
+    )
+    + ")";
+
+
+  chRawEl.textContent =
+    "Rohwert: " +
+    chRaw.toFixed(4);
+
+  jpRawEl.textContent =
+    "Rohwert: " +
+    jpRaw.toFixed(4);
+
+
+  chResult.classList.add("active");
+  jpResult.classList.add("active");
+}
+
+
+inputA.addEventListener(
+  "input",
+  calculate
+);
+
+
+[
+  chMulInput,
+  chDivInput,
+  jpMulInput,
+  jpDivInput
+].forEach(input => {
+
+  input.addEventListener(
+    "change",
+    saveSettings
+  );
+
+});
+
+
+loadSettings();
+
+</script>
+
+</body>
+</html>
